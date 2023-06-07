@@ -25,7 +25,6 @@ public class AppConfig {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests(authorize -> authorize
-               
                 .antMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )
