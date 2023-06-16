@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.mon.Chatserver.Exception.UserException;
-import com.mon.Chatserver.config.TokenProvider;
+import com.mon.Chatserver.config.JwtTokenFilter;
+import com.mon.Chatserver.config.JwtTokenUtil;
 import com.mon.Chatserver.model.User;
 import com.mon.Chatserver.repository.UserRepository;
 import com.mon.Chatserver.request.UpdateUserRequest;
@@ -17,11 +19,11 @@ import com.mon.Chatserver.request.UpdateUserRequest;
 public class UserServiceImplementation implements UserService{
 
     private UserRepository userRepository;
-    private TokenProvider tokenProvider;
-    public UserServiceImplementation( UserRepository repository, TokenProvider tokenProvider)
+    private JwtTokenFilter jwtTokenFilter;
+    public UserServiceImplementation( UserRepository repository, JwtTokenFilter jwtTokenFilter)
     {
         this.userRepository=repository;
-        this.tokenProvider=tokenProvider;
+        this.jwtTokenFilter=jwtTokenFilter;
     }
     @Override
     public User findUserById(Integer id) throws UserException {
@@ -35,7 +37,8 @@ public class UserServiceImplementation implements UserService{
 
     @Override
     public User findUserProfile(String jwt) throws UserException {
-      String email=tokenProvider.getEmailFromToken(jwt);
+      UserDetails userDetails= jwtTokenFilter.getUserDetails(jwt);
+      String email = userDetails.getUsername();
       if(email==null){
         throw new BadCredentialsException("Received Invalid token.");
       }

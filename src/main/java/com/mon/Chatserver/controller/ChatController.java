@@ -79,8 +79,8 @@ public class ChatController {
 
     }
 
-    @PutMapping("/{chatId}/add/{userId}")
-    public ResponseEntity<Chat> removeUserFromGroup(@PathVariable Integer chatId,@PathVariable Integer userId,@RequestHeader("Authorization")String jwt) throws ChatException, UserException{
+    @PutMapping("/{userId}/add/{chatId}")
+    public ResponseEntity<Chat> removeUserFromGroup(@PathVariable Integer userId,@PathVariable Integer chatId,@RequestHeader("Authorization")String jwt) throws ChatException, UserException{
         User reqUser =userService.findUserProfile(jwt);
         Chat chat =chatService.removeFromGroup(chatId,userId,reqUser);
 
