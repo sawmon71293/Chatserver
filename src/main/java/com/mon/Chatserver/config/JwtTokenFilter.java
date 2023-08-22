@@ -1,12 +1,12 @@
 package com.mon.Chatserver.config;
 
 import java.io.IOException;
- 
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
- 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,9 +21,9 @@ import com.mon.Chatserver.model.User;
  
 @Component
 public class JwtTokenFilter extends OncePerRequestFilter {
-    @Autowired
+   @Autowired
     private JwtTokenUtil jwtUtil;
- 
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                 HttpServletResponse response, FilterChain filterChain)
@@ -33,6 +33,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+
+
  
         String token = getAccessToken(request);
  
@@ -79,6 +81,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         userDetails.setId(Integer.parseInt(jwtSubject[0]));
         userDetails.setEmail(jwtSubject[1]);
  
-        return (UserDetails) userDetails;
+        return userDetails;
     }
+    
 }

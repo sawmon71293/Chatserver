@@ -1,11 +1,14 @@
 package com.mon.Chatserver.config;
 
 import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import com.mon.Chatserver.model.User;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -15,17 +18,18 @@ import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 
 
+
 @Component
 public class JwtTokenUtil {
-     
+ 
+    private static final long EXPIRE_DURATION = 24 * 60 * 60 * 1000; // 24 hour
     @Value("${app.jwt.secret}")
     private String SECRET_KEY;
-    private static final long EXPIRE_DURATION = 24 * 60 * 60 * 1000; // 24 hour
      
     public String generateAccessToken(User user) {
         return Jwts.builder()
-                .setSubject(String.format("%s,%s", user.getId(), user.getEmail()))
-                .setIssuer("Code with saw mon")
+        .setSubject(String.format("%s,%s", user.getId(), user.getEmail()))
+                .setIssuer("SawMon")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_DURATION))
                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
@@ -36,6 +40,7 @@ public class JwtTokenUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenUtil.class);
     public boolean validateAccessToken(String token) {
         try {
+  
             Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException ex) {

@@ -1,6 +1,5 @@
 package com.mon.Chatserver.controller;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import javax.servlet.http.HttpServletRequest;
 
 import com.mon.Chatserver.Exception.UserException;
 import com.mon.Chatserver.config.JwtTokenUtil;
@@ -23,7 +21,7 @@ import com.mon.Chatserver.response.AuthResponse;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin
 public class AuthController {
     @Autowired
      private UserRepository userRepository;
@@ -33,7 +31,7 @@ public class AuthController {
     private JwtTokenUtil jwtTokenUtil;
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user, HttpServletRequest request) throws UserException{
+    public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user) throws UserException{
           String email=user.getEmail();
           String full_name=user.getFull_name();
           String password = user.getPassword();
@@ -50,7 +48,7 @@ public class AuthController {
           createdUser.setPassword(passwordEncoder.encode(password));
 
           User savedUser=userRepository.save(createdUser);
-         Authentication auth=new UsernamePasswordAuthenticationToken(email, savedUser);
+         Authentication auth=new UsernamePasswordAuthenticationToken(email, password);
          SecurityContextHolder.getContext().setAuthentication(auth);
         String jwt=jwtTokenUtil.generateAccessToken(savedUser);
         AuthResponse res=new AuthResponse(savedUser.getEmail(),jwt);
@@ -64,7 +62,7 @@ public class AuthController {
     //       String password=req.getPassword();
     //       Authentication authentication = authenticate(email, password);
     //       SecurityContextHolder.getContext().setAuthentication(authentication);
-    //       String jwt = jwtTokenFilter.getAccessToken(request);
+    //       String jwt = jwtTokenUtil.getAccessToken(request);
     //       AuthResponse res=new AuthResponse(jwt, true);
     //       return new ResponseEntity<AuthResponse>(res,HttpStatus.ACCEPTED);
     // }

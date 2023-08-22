@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.mon.Chatserver.Exception.UserException;
 import com.mon.Chatserver.config.JwtTokenFilter;
-import com.mon.Chatserver.config.JwtTokenUtil;
 import com.mon.Chatserver.model.User;
 import com.mon.Chatserver.repository.UserRepository;
 import com.mon.Chatserver.request.UpdateUserRequest;
@@ -37,16 +36,20 @@ public class UserServiceImplementation implements UserService{
 
     @Override
     public User findUserProfile(String jwt) throws UserException {
-      UserDetails userDetails= jwtTokenFilter.getUserDetails(jwt);
-      String email = userDetails.getUsername();
+         // Check if the JWT starts with "Bearer " and remove it if present
+    if (jwt.startsWith("Bearer ")) {
+        jwt = jwt.substring(7); // Remove "Bearer " prefix
+    }
+      UserDetails user= jwtTokenFilter.getUserDetails(jwt);
+      String email = user.getUsername();
       if(email==null){
         throw new BadCredentialsException("Received Invalid token.");
       }
-      User user=userRepository.findByEmail(email);
-      if(user==null){
+      User savedUser=userRepository.findByEmail(email);
+      if(savedUser==null){
         throw new UserException("User not found.");
       }
-      return user;
+      return savedUser;
     }
 
     @Override

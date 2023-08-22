@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -20,6 +21,7 @@ import com.mon.Chatserver.service.UserService;
 
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin
 public class UserController {
 
     private UserService userService;
@@ -30,7 +32,8 @@ public class UserController {
 
     @GetMapping("/profile")
     public  ResponseEntity<User> getUserProfileHandler(@RequestHeader("Authorization")String token) throws UserException
-    { User user= userService.findUserProfile(token);
+    {
+        User user= userService.findUserProfile(token);
         return  new ResponseEntity<User>(user,HttpStatus.ACCEPTED);
         
     }
