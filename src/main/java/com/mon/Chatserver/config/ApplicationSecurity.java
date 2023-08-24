@@ -83,7 +83,8 @@ public class ApplicationSecurity {
         http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authorizeHttpRequests()
         .antMatchers("/").permitAll()
-        .antMatchers("/auth/signup").permitAll()
+                .antMatchers("/auth/signup").permitAll()
+             .antMatchers("/auth/signin").permitAll()
                 .antMatchers("/api/**").authenticated()
                 .anyRequest().authenticated();
 

@@ -1,10 +1,15 @@
 package com.mon.Chatserver.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +21,9 @@ import com.mon.Chatserver.Exception.UserException;
 import com.mon.Chatserver.config.JwtTokenUtil;
 import com.mon.Chatserver.model.User;
 import com.mon.Chatserver.repository.UserRepository;
+import com.mon.Chatserver.request.LoginRequest;
 import com.mon.Chatserver.response.AuthResponse;
+import com.mon.Chatserver.service.CustomUserService;
 
 
 @RestController
@@ -29,6 +36,9 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private CustomUserService customUserService;
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user) throws UserException{
@@ -55,28 +65,33 @@ public class AuthController {
         return  ResponseEntity.ok(res);
     }
 
+@PostMapping("/signin")
+    public ResponseEntity<AuthResponse> loginHandler(@RequestBody LoginRequest req, HttpServletRequest request){
+      User user = new User();
+          user.setEmail(req.getEmail());
+          user.setPassword(req.getPassword());
+          Authentication authentication = authenticate(user.getEmail(), user.getPassword());
+          SecurityContextHolder.getContext().setAuthentication(authentication);
+          User authUser = userRepository.findByEmail(user.getEmail());
+          if (authUser != null) {
+             user.setId(authUser.getId());
+          }
+         
+          String jwt = jwtTokenUtil.generateAccessToken(user);
+          AuthResponse res=new AuthResponse(user.getEmail(), jwt);
+          return new ResponseEntity<AuthResponse>(res,HttpStatus.ACCEPTED);
+    }
 
-    // public ResponseEntity<AuthResponse> loginHandler(@RequestBody LoginRequest req, HttpServletRequest request){
+    public Authentication authenticate(String userName,String password){
+      UserDetails userdetails = customUserService.loadUserByUsername(userName);
+      if(userdetails == null){
+        throw new BadCredentialsException("invalid user email");
 
-    //       String email=req.getEmail();
-    //       String password=req.getPassword();
-    //       Authentication authentication = authenticate(email, password);
-    //       SecurityContextHolder.getContext().setAuthentication(authentication);
-    //       String jwt = jwtTokenUtil.getAccessToken(request);
-    //       AuthResponse res=new AuthResponse(jwt, true);
-    //       return new ResponseEntity<AuthResponse>(res,HttpStatus.ACCEPTED);
-    // }
-
-    // public Authentication authenticate(String userName,String password){
-    //   UserDetails userdetails = customUserService.loadUserByUsername(userName);
-    //   if(userdetails == null){
-    //     throw new BadCredentialsException("invalid user email");
-
-    //   }
-    //   if(!passwordEncoder.matches(password, userdetails.getPassword())){
-    //     throw new BadCredentialsException("Invalid password or username" );
-    //   }
-    //   return new UsernamePasswordAuthenticationToken( userdetails, null,userdetails.getAuthorities());
-    // }
+      }
+      if(!passwordEncoder.matches(password, userdetails.getPassword())){
+        throw new BadCredentialsException("Invalid password or username" );
+      }
+      return new UsernamePasswordAuthenticationToken( userdetails, null,null);
+    }
     
 }
