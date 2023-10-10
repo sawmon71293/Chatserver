@@ -47,7 +47,7 @@ public class MessageController {
     }
 
     @GetMapping("/chat/{chatId}")
-    public ResponseEntity<List<Message>> getChatMessagesHandler(@PathVariable Integer chatId,@RequestBody SendMessageRequest req,@RequestHeader("Authorization")String jwt) throws UserException, ChatException{
+    public ResponseEntity<List<Message>> getChatMessagesHandler(@PathVariable Integer chatId,@RequestHeader("Authorization")String jwt) throws UserException, ChatException{
         User user =userService.findUserProfile(jwt);
        
         List<Message> messages =messageService.getChatsMessages(chatId,user);
@@ -64,7 +64,4 @@ public class MessageController {
         return new ResponseEntity<ApiResponse>(res,HttpStatus.OK);
 
     }
-
-
-
 }

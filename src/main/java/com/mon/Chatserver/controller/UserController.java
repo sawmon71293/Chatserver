@@ -39,10 +39,10 @@ public class UserController {
     }
 
 
-    @GetMapping("/{query}")
-    public ResponseEntity<List<User>> searchUserHandler(@PathVariable("query") String query) throws UserException
+    @GetMapping("/search/{name}")
+    public ResponseEntity<List<User>> searchUserHandler(@PathVariable("name") String name) throws UserException
     {
-        List<User> users=userService.searchUser(query);
+        List<User> users=userService.searchUser(name);
         return new ResponseEntity<List<User>>(users, HttpStatus.OK);
     }
 

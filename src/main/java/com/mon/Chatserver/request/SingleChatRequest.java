@@ -1,11 +1,13 @@
 package com.mon.Chatserver.request;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class SingleChatRequest {
     private Integer userId;
-
+    public SingleChatRequest(){}
     public SingleChatRequest(Integer userId) {
         this.userId=userId;
     }
